@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static tz %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'messages.css' %}">
+{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+<div class="messages-page">
+    <div class="card">
+        <h2>Conversation</h2>
+        {% for participant in other_participants %}
+            {% include "components/user_identity.html" with user=participant compact=True %}
+        {% endfor %}
+        <div>
+            {% for msg in chat_messages %}
+                <div class="card">
+                    <div class="dm-head">
+                        {% include "components/user_identity.html" with user=msg.sender compact=True %}
+                        <div class="muted">{{ msg.created_at|localtime|date:"M j, H:i" }}</div>
+                    </div>
+                    {% if msg.content %}
+                        <p>{{ msg.content|linebreaksbr }}</p>
+                    {% endif %}
+                    {% if msg.image %}
+                        <div class="dm-photo-wrap">
+                            <img class="dm-photo" src="{{ msg.image.url }}" alt="Direct message photo">
+                        </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p class="muted">No messages yet.</p>
+            {% endfor %}
+        </div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="message error">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {{ form.content }}
+            <div class="file-stack">
+                <label class="muted" for="{{ form.image.id_for_label }}">Attach photo</label>
+                {{ form.image }}
+            </div>
+            <button class="btn" type="submit">Send</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

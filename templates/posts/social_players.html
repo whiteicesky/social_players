@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load ui_tags static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'posts.css' %}">
+{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Game topics</h2>
+    <p class="muted">Browse posts by game or activity. Choose a topic to see the discussion.</p>
+    <div class="topics-grid">
+        {% for value, label in topic_choices %}
+            <a class="btn secondary topic-chip" href="{% url 'posts:topic_posts' slug=value %}">{{ label }}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

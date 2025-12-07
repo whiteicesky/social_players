@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'profiles.css' %}">
+{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Edit profile</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <label>Display name</label>
+        {{ form.display_name }}
+        <label>Bio</label>
+        {{ form.bio }}
+        <label>Avatar</label>
+        <div class="file-stack">
+            <label class="muted" for="{{ form.avatar.id_for_label }}">Upload avatar</label>
+            {{ form.avatar }}
+        </div>
+        {% if user.profile.avatar %}
+            <div class="muted">Current avatar is set. Use the button below to remove it.</div>
+        {% endif %}
+        <div class="form-actions">
+            <button class="btn" type="submit">Save</button>
+            <a class="btn secondary" href="{% url 'profiles:detail' username=user.username %}">Cancel</a>
+            {% if user.profile.avatar %}
+                <button class="btn secondary" type="submit" name="remove_avatar" value="1" formnovalidate>Remove avatar</button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

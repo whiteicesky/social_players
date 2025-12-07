@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'posts.css' %}">
+{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>What's new?</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <label>Content</label>
+        {{ form.content }}
+        <label>Topic</label>
+        {{ form.topic }}
+        <div class="file-stack">
+            <label class="muted" for="{{ form.image.id_for_label }}">Attach image (optional)</label>
+            {{ form.image }}
+        </div>
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button class="btn" type="submit">Publish</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header-row">
+        <h3 class="section-heading">News From Your Friends</h3>
+    </div>
+    <form class="feed-filters" method="get">
+        <div class="filter-field">
+            <label for="friend-filter">Friend</label>
+            <select class="filter-select" id="friend-filter" name="friend">
+                <option value="all" {% if selected_friend == 'all' %}selected{% endif %}>All friends</option>
+                <option value="{{ user.id }}" {% if selected_friend == user.id|stringformat:"s" %}selected{% endif %}>My activity</option>
+                {% for friend in friends %}
+                    <option value="{{ friend.id }}" {% if selected_friend == friend.id|stringformat:"s" %}selected{% endif %}>
+                        {{ friend.profile.display_name|default:friend.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="topic-filter">Topic</label>
+            <select class="filter-select" id="topic-filter" name="topic">
+                <option value="all" {% if selected_topic == 'all' %}selected{% endif %}>All topics</option>
+                {% for value, label in topics %}
+                    <option value="{{ value }}" {% if selected_topic == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="order-filter">Order</label>
+            <select class="filter-select" id="order-filter" name="order">
+                <option value="new" {% if selected_order == 'new' %}selected{% endif %}>Newest first</option>
+                <option value="old" {% if selected_order == 'old' %}selected{% endif %}>Oldest first</option>
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button class="btn secondary" type="submit">Apply</button>
+            <a class="btn linkish" href="{% url 'posts:feed' %}">Reset</a>
+        </div>
+    </form>
+</div>
+
+{% for post in posts %}
+    {% include "posts/post_card.html" with post=post comment_form=comment_form comment_friend_flags=comment_friend_flags next_url=request.get_full_path %}
+{% empty %}
+    <p class="muted">Your feed is empty. Add friends or create a post.</p>
+{% endfor %}
+{% endblock %}

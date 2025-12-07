@@ -1,0 +1,92 @@
+{% load ui_tags tz %}
+{% next_with_anchor next_url post.pk as anchored_next %}
+<div class="card post-card" id="post-{{ post.pk }}">
+    <div class="post-header">
+        <div class="post-author">
+            {% include "components/user_identity.html" with user=post.author %}
+        </div>
+        <div class="post-header-meta">
+            <div class="muted">{{ post.created_at|localtime|date:"M j, H:i" }}</div>
+            {% if post.author == user %}
+                <div class="post-actions-top">
+                    <a class="btn secondary btn-compact" href="{% url 'posts:post_edit' pk=post.pk %}?next={{ anchored_next|urlencode }}">Edit</a>
+                    <form class="inline-form" method="post" action="{% url 'posts:post_delete' pk=post.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ anchored_next }}">
+                        <button class="btn danger btn-compact" type="submit">Delete</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="post-topic">
+        <span class="pill">{{ post.get_topic_display }}</span>
+    </div>
+    <div class="post-body">
+        <p>{{ post.content|linebreaksbr }}</p>
+        {% if post.image %}
+            <img class="post-image" src="{{ post.image.url }}" alt="post image">
+        {% endif %}
+    </div>
+    <div class="post-meta">
+        <span>{{ post.like_count }} likes</span>
+        <span>|</span>
+        <span>{{ post.active_comments|length }} comments</span>
+    </div>
+    {% if user.is_authenticated %}
+        <div class="post-actions">
+            <form class="inline-form" method="post" action="{% url 'posts:toggle_like' pk=post.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ anchored_next }}">
+                <button class="btn like-btn {% if post.liked_by_current_user %}liked{% else %}muted{% endif %}" type="submit">
+                    Like
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <div class="muted">Log in to like or comment.</div>
+    {% endif %}
+
+    <div class="comments">
+        {% for comment in post.active_comments %}
+            <div class="comment">
+                <div class="comment-head">
+                    {% with is_friend=comment_friend_flags|get_item:comment.id %}
+                        {% include "components/user_identity.html" with user=comment.author compact=True badge_text=is_friend|yesno:"Your Friend,," %}
+                    {% endwith %}
+                    <div class="muted">{{ comment.created_at|localtime|date:"M j, H:i" }}</div>
+                </div>
+                <p>{{ comment.content|linebreaksbr }}</p>
+                {% if comment.attachment %}
+                    <div class="comment-attachment">
+                        <a href="{{ comment.attachment.url }}" target="_blank" rel="noopener">View attachment</a>
+                    </div>
+                {% endif %}
+                {% if comment.author == user %}
+                    <div class="comment-actions">
+                        <form class="inline-form" method="post" action="{% url 'posts:delete_comment' pk=comment.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ anchored_next }}">
+                            <button class="btn danger btn-compact" type="submit">Remove</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="muted">No comments yet.</p>
+        {% endfor %}
+    </div>
+
+    {% if user.is_authenticated %}
+        <form class="comment-form" method="post" action="{% url 'posts:add_comment' pk=post.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ anchored_next }}">
+            {{ comment_form.content }}
+            <div class="comment-actions-row">
+                <label class="muted" for="{{ comment_form.attachment.id_for_label }}">Add file</label>
+                {{ comment_form.attachment }}
+                <button class="btn" type="submit">Comment</button>
+            </div>
+        </form>
+    {% endif %}
+</div>

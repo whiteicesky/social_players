@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Create account</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <label>Username</label>
+        {{ form.username }}
+        {{ form.username.errors }}
+        <label>Email</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+        <label>Password</label>
+        {{ form.password1 }}
+        {{ form.password1.errors }}
+        <label>Confirm password</label>
+        {{ form.password2 }}
+        {{ form.password2.errors }}
+        <button type="submit">Sign up</button>
+    </form>
+    <p class="muted">Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+</div>
+{% endblock %}

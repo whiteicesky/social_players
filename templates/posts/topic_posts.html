@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'posts.css' %}">
+{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header-row">
+        <h2>{{ topic_label }}</h2>
+        <a class="btn secondary" href="{% url 'posts:social_players' %}">Back to topics</a>
+    </div>
+    <p class="muted">Posts tagged with {{ topic_label }}.</p>
+</div>
+
+{% for post in posts %}
+    {% include "posts/post_card.html" with post=post comment_form=comment_form comment_friend_flags=comment_friend_flags next_url=request.get_full_path %}
+{% empty %}
+    <div class="card">
+        <p class="muted">No posts in this topic yet.</p>
+    </div>
+{% endfor %}
+{% endblock %}

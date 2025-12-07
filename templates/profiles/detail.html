@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'posts.css' %}">
+<link rel="stylesheet" href="{% static 'profiles.css' %}">
+{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+<div class="profile-page">
+    <div class="card profile-card">
+        {% include "components/user_identity.html" with user=profile_user %}
+        <div class="profile-metrics">
+            <div class="profile-metric">
+                <span class="label">Friends</span>
+                <span class="value">{{ friend_count }}</span>
+            </div>
+            <div class="profile-metric">
+                <span class="label">Followers</span>
+                <span class="value">{{ follower_count }}</span>
+            </div>
+        </div>
+        {% if profile.bio %}
+            <p>{{ profile.bio|linebreaksbr }}</p>
+        {% endif %}
+        <div class="profile-actions">
+            {% if friend_status == 'self' %}
+                <a class="btn secondary" href="{% url 'profiles:edit' %}">Edit profile</a>
+            {% elif friend_status == 'friends' %}
+                <form class="inline-form" method="post" action="{% url 'friendships:remove' user_id=profile_user.id %}">
+                    {% csrf_token %}
+                    <button class="btn danger" type="submit">Remove friend</button>
+                </form>
+                <form class="inline-form" method="post" action="{% url 'messaging:start' username=profile_user.username %}">
+                    {% csrf_token %}
+                    <button class="btn" type="submit">Message</button>
+                </form>
+            {% elif friend_status == 'outgoing' %}
+                <span class="muted">Request sent.</span>
+                {% if outgoing_request %}
+                    <form class="inline-form" method="post" action="{% url 'friendships:cancel' pk=outgoing_request.pk %}">
+                        {% csrf_token %}
+                        <button class="link-btn" type="submit">Cancel</button>
+                    </form>
+                {% endif %}
+            {% elif friend_status == 'incoming' and incoming_request %}
+                <form class="inline-form" method="post" action="{% url 'friendships:accept' pk=incoming_request.pk %}">
+                    {% csrf_token %}
+                    <button class="btn" type="submit">Accept</button>
+                </form>
+                <form class="inline-form" method="post" action="{% url 'friendships:reject' pk=incoming_request.pk %}">
+                    {% csrf_token %}
+                    <button class="btn secondary" type="submit">Reject</button>
+                </form>
+            {% elif friend_status == 'none' and user.is_authenticated %}
+                <form class="inline-form" method="post" action="{% url 'friendships:send' user_id=profile_user.id %}">
+                    {% csrf_token %}
+                    <button class="btn" type="submit">Add friend</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if post_form %}
+    <div class="card">
+        <h3>What's new?</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ post_form.non_field_errors }}
+            <label>Content</label>
+            {{ post_form.content }}
+            <label>Topic</label>
+            {{ post_form.topic }}
+            <div class="file-stack">
+                <label class="muted" for="{{ post_form.image.id_for_label }}">Attach image (optional)</label>
+                {{ post_form.image }}
+            </div>
+            <button class="btn" type="submit">Publish</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header-row">
+            <h3>Posts</h3>
+        </div>
+        {% for post in posts %}
+            {% include "posts/post_card.html" with post=post comment_form=comment_form comment_friend_flags=comment_friend_flags next_url=request.get_full_path %}
+        {% empty %}
+            <p class="muted">No posts yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

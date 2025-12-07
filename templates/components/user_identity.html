@@ -1,0 +1,19 @@
+{% if link_to_profile is False %}
+<div class="user-line {% if compact %}user-line-compact{% endif %}">
+{% else %}
+<a class="user-line user-identity-link {% if compact %}user-line-compact{% endif %}" href="{% url 'profiles:detail' username=user.username %}">
+{% endif %}
+    {% if user.profile.avatar %}
+        <img class="avatar {% if compact %}avatar-sm{% endif %}" src="{{ user.profile.avatar.url }}" alt="avatar of {{ user.username }}">
+    {% else %}
+        <div class="avatar placeholder {% if compact %}avatar-sm{% endif %}">@</div>
+    {% endif %}
+    <div class="user-line-text">
+        <div class="display-name">{{ user.profile.display_name|default:user.username }}</div>
+        <div class="muted">@{{ user.username }}{% if badge_text %}<span class="pill pill-muted">{{ badge_text }}</span>{% endif %}</div>
+    </div>
+{% if link_to_profile is False %}
+</div>
+{% else %}
+</a>
+{% endif %}

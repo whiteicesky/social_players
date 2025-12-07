@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static tz %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'search.css' %}">
+{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+<div class="search-page">
+    <div class="card">
+        <h2>Search</h2>
+        <form method="get">
+            <input class="search-input search-input-wide" type="text" name="q" value="{{ query }}" placeholder="Search users or posts">
+            <button class="btn" type="submit">Search</button>
+        </form>
+    </div>
+
+    {% if query %}
+        <div class="search-results">
+            <div class="card">
+                <h3>Users</h3>
+                {% if user_results %}
+                    {% for u in user_results %}
+                        <div class="search-result">
+                            {% include "components/user_identity.html" with user=u %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="muted">No users found.</p>
+                {% endif %}
+            </div>
+            <div class="card">
+                <h3>Posts</h3>
+                {% if post_results %}
+                    {% for post in post_results %}
+                        <div class="search-result">
+                            {% include "components/user_identity.html" with user=post.author %}
+                            <div class="muted">{{ post.created_at|localtime|date:"M j, H:i" }} · {{ post.get_topic_display }}</div>
+                            <p>{{ post.content|truncatewords:30 }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="muted">No posts found.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

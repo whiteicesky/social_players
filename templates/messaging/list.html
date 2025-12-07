@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static tz %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'messages.css' %}">
+{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+<div class="messages-page">
+    <div class="card">
+        <h2>Messages</h2>
+        {% if conversations %}
+            <div class="conversation-list">
+                {% for convo in conversations %}
+                    <div class="card conversation-card">
+                        <div class="conversation-meta">
+                            <div>
+                                <div class="muted">Conversation</div>
+                                {% for participant in convo.participants.all %}
+                                    {% if participant.user != user %}
+                                        {% include "components/user_identity.html" with user=participant.user compact=True %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="conversation-actions">
+                                <a class="btn secondary btn-compact" href="{% url 'messaging:detail' pk=convo.pk %}">Open</a>
+                            </div>
+                        </div>
+                        {% with convo.messages.last as last_msg %}
+                            {% if last_msg %}
+                                {% if not last_msg.content and last_msg.image %}
+                                    <div class="muted">Last: Photo</div>
+                                {% else %}
+                                    <div class="muted">Last: {{ last_msg.content|truncatewords:12 }}</div>
+                                {% endif %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="muted">No conversations yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

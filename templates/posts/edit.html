@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'posts.css' %}">
+{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>Edit post</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <label>Content</label>
+        {{ form.content }}
+        <label>Topic</label>
+        {{ form.topic }}
+        <div class="file-stack">
+            <label class="muted" for="{{ form.image.id_for_label }}">Attach image (optional)</label>
+            {{ form.image }}
+        </div>
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <button class="btn" type="submit">Save</button>
+        <a class="btn secondary" href="{{ next_url }}">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'friends.css' %}">
+{% endblock %}
+{% block container_class %}wide{% endblock %}
+{% block content %}
+<div class="list-page">
+    <div class="card">
+        <div class="card-header-row">
+            <h2>Your friends</h2>
+            <div class="requests-nav">
+                <a href="{% url 'friendships:incoming' %}">Incoming requests</a>
+                <span class="muted">/</span>
+                <a href="{% url 'friendships:outgoing' %}">Outgoing requests</a>
+            </div>
+        </div>
+        {% if friends %}
+            <div class="list-stack">
+                {% for friend in friends %}
+                    <div class="list-row">
+                        {% include "components/user_identity.html" with user=friend compact=True %}
+                        <div class="list-actions">
+                            <form class="inline-form" method="post" action="{% url 'friendships:remove' user_id=friend.id %}">
+                                {% csrf_token %}
+                                <button class="btn secondary" type="submit">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="muted">No friends yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
