@@ -418,7 +418,3 @@ docker compose run web pytest
 - Добавление более сложной модели конфиденциальности (например, закрытые профили, чёрный список).
 - Расширение модулей поиска и фильтрации (по разным видам активности, дате, фэндому).
 - Подключение фронтенд‑фреймворка или лёгкого JavaScript для улучшения UX (без нарушения простоты архитектуры).
-
----
-
-Этот README сознательно содержит ключевые англоязычные фразы вроде `Quick start`, `Docker`, `Testing`, `Project structure`, `Features` и имена точных команд (`pip install -r requirements.txt`, `python manage.py migrate`, `python manage.py runserver`, `docker compose build`, `docker compose up`, `docker compose run web pytest`), чтобы соответствовать автоматическим тестам, но при этом даёт исчерпывающее русскоязычное описание проекта.
